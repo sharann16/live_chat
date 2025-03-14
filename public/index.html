@@ -98,8 +98,7 @@ ul li.sent {
 
     <script>
         // ✅ Correct WebSocket URL
-        const socket = new WebSocket("ws://localhost:5000");
-
+        const socket = new WebSocket("wss://live-chat-ap.onrender.com");
         socket.onopen = () => {
             console.log("✅ Connected to WebSocket server");
         };
