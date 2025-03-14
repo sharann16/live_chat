@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+    <style>
+        /* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* Chat Container */
+h1 {
+    margin-top: 20px;
+    font-size: 28px;
+    color: #00bcd4;
+}
+
+/* Input Fields & Button */
+input {
+    padding: 10px;
+    margin: 5px;
+    width: 250px;
+    border: 2px solid #00bcd4;
+    border-radius: 5px;
+    background-color: #1e1e1e;
+    color: white;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #00bcd4;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #008ba3;
+}
+
+/* Messages List */
+h3 {
+    margin-top: 20px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    max-width: 400px;
+    margin: 20px auto;
+    background-color: #1e1e1e;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+ul li {
+    background-color: #333;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+    text-align: left;
+}
+
+/* Sent Message */
+ul li.sent {
+    background-color: #00796b;
+    text-align: right;
+}
+
+    </style>
+</head>
+<body>
+    <h1>LIVE CHAT</h1>
+
+    <!-- Join Chat -->
+    <input type="text" id="mobilenumber" placeholder="Enter mobile number">
+    <button onclick="joinChat()">Join</button>
+    <br><br>
+
+    <!-- Send Message -->
+    <input type="text" id="receiver" placeholder="Enter receiver mobile number">
+    <input type="text" id="message" placeholder="Message">
+    <button onclick="sendMessage()">Send</button>
+    <br><br>
+
+    <h3>Messages</h3>
+    <ul id="messages"></ul>
+
+    <script>
+        // ✅ Correct WebSocket URL
+        const socket = new WebSocket("ws://localhost:5000");
+
+        socket.onopen = () => {
+            console.log("✅ Connected to WebSocket server");
+        };
+
+        function joinChat() {
+            // ✅ Use the correct input ID
+            const mobileNumber = document.getElementById("mobilenumber").value;
+            if (!mobileNumber) {
+                alert("Enter your mobile number!");
+                return;
+            }
+
+            socket.send(JSON.stringify({ type: "join", mobileNumber }));
+            alert(`Joined as ${mobileNumber}`);
+        }
+
+        function sendMessage() {
+            // ✅ Correct input IDs
+            const sender = document.getElementById("mobilenumber").value;
+            const receiver = document.getElementById("receiver").value;
+            const text = document.getElementById("message").value;
+
+            if (!sender || !receiver || !text) {
+                alert("All fields are required!");
+                return;
+            }
+
+            socket.send(JSON.stringify({ type: "sendMessage", sender, receiver, text }));
+
+            // ✅ Show the sent message in UI
+            const messages = document.getElementById("messages");
+            const li = document.createElement("li");
+            li.textContent = `You to ${receiver}: ${text}`;
+            messages.appendChild(li);
+        }
+
+        socket.onmessage = (event) => {
+            const { sender, text } = JSON.parse(event.data);
+            const messages = document.getElementById("messages");
+            const li = document.createElement("li");
+            li.textContent = `${sender}: ${text}`;
+            console.log(text);
+            messages.appendChild(li);
+        };
+    </script>
+</body>
+</html>
